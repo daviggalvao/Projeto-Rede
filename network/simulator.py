@@ -1,5 +1,10 @@
 from network.routing import proximo_salto
 
+def listar_hosts(grafo):
+    """Retorna uma lista dos hosts disponíveis na rede."""
+    return sorted([no for no, attr in grafo.nodes(data=True) 
+                  if attr.get('tipo') == 'host'])
+
 def buscar_ip(grafo, no):
     """Retorna o IP do nó na rede."""
     return grafo.nodes[no]["ip"] if no in grafo.nodes else None
