@@ -1,51 +1,87 @@
 # network/routing.py
+import ipaddress
 
-# Tabelas de roteamento por roteador
-# Cada entrada: destino_em_forma_de_prefixo: próximo_salto
-# Obs: usamos prefixo só como string simplificada, não CIDR real por enquanto.
+# ==============================================================================
+# TABELAS DE ROTEAMENTO FINAIS E DEFINITIVAS
+# ==============================================================================
+ROUTING_TABLES = {
+    # Switches de borda têm apenas uma rota padrão "para cima".
+    'e1': [{'destination': '0.0.0.0/0', 'next_hop': 'a1'}],
+    'e2': [{'destination': '0.0.0.0/0', 'next_hop': 'a1'}],
+    'e3': [{'destination': '0.0.0.0/0', 'next_hop': 'a2'}],
+    'e4': [{'destination': '0.0.0.0/0', 'next_hop': 'a2'}],
+    
+    # Roteadores de agregação conhecem as redes dos switches abaixo deles
+    # e têm uma rota padrão "para cima". A ordem é crucial: rotas específicas primeiro.
+    'a1': [
+        # Rotas específicas "para baixo":
+        {'destination': '10.0.1.0/24', 'next_hop': 'e1'},
+        {'destination': '10.0.2.0/24', 'next_hop': 'e1'},
+        {'destination': '10.0.3.0/24', 'next_hop': 'e1'},
+        {'destination': '10.0.4.0/24', 'next_hop': 'e2'},
+        {'destination': '10.0.5.0/24', 'next_hop': 'e2'},
+        {'destination': '10.0.6.0/24', 'next_hop': 'e2'},
+        # Rota padrão "para cima":
+        {'destination': '0.0.0.0/0', 'next_hop': 'Core'}
+    ],
+    'a2': [
+        # Rotas específicas "para baixo":
+        {'destination': '10.0.7.0/24', 'next_hop': 'e3'},
+        {'destination': '10.0.8.0/24', 'next_hop': 'e3'},
+        {'destination': '10.0.9.0/24', 'next_hop': 'e4'},
+        {'destination': '10.0.10.0/24', 'next_hop': 'e4'},
+        # Rota padrão "para cima":
+        {'destination': '0.0.0.0/0', 'next_hop': 'Core'}
+    ],
 
-tabelas_roteamento = {
-    "a0": {
-        "10.0.1.": "a1",  # h1 via a1->e1
-        "10.0.2.": "a1",  # h3 e h4 via a1->e2
-        "10.0.3.": "a2",  # h5 e h6 via a2->e3
-        "10.0.4.": "a1",  # h3 e h4 via a1->e2
-        "10.0.5.": "a2",  # h5 e h6 via a2->e3
-        "10.0.6.": "a2",  # h5 e h6 via a2->e3
-        "10.0.7.": "a2",  # h7 e h8 via a2->e4
-        "10.0.8.": "a2",  # h7 e h8 via a2->e4
-    },
-    "a1": {
-        "10.0.1.": "e1",  # h1 e h2 via e1
-        "10.0.2.": "e2",  # h3 e h4 via e2
-        "10.0.3.": "a0",  # h5 e h6 via a0->a2->e3
-        "10.0.4.": "e2",  # h3 e h4 via e2
-        "10.0.5.": "a0",  # h5 e h6 via a0->a2->e3
-        "10.0.6.": "a0",  # h5 e h6 via a0->a2->e3
-        "10.0.7.": "a0",  # h7 e h8 via a0->a2->e4
-        "10.0.8.": "a0",  # h7 e h8 via a0->a2->e4
-    },
-    "a2": {
-        "10.0.1.": "a0",  # h1 e h2 via a0->a1->e1
-        "10.0.2.": "a0",  # h3 e h4 via a0->a1->e2
-        "10.0.3.": "e3",  # h5 e h6 via e3
-        "10.0.4.": "a0",  # h3 e h4 via a0->a1->e2
-        "10.0.5.": "e3",  # h5 e h6 via e3
-        "10.0.6.": "e3",  # h5 e h6 via e3
-        "10.0.7.": "e4",  # h7 e h8 via e4
-        "10.0.8.": "e4",  # h7 e h8 via e4
-    }
+    # O Core conhece todas as sub-redes e para qual roteador de agregação encaminhar.
+    'Core': [
+        # Sub-redes sob a1
+        {'destination': '10.0.1.0/24', 'next_hop': 'a1'},
+        {'destination': '10.0.2.0/24', 'next_hop': 'a1'},
+        {'destination': '10.0.3.0/24', 'next_hop': 'a1'},
+        {'destination': '10.0.4.0/24', 'next_hop': 'a1'},
+        {'destination': '10.0.5.0/24', 'next_hop': 'a1'},
+        {'destination': '10.0.6.0/24', 'next_hop': 'a1'},
+
+        # Sub-redes sob a2
+        {'destination': '10.0.7.0/24', 'next_hop': 'a2'},
+        {'destination': '10.0.8.0/24', 'next_hop': 'a2'},
+        {'destination': '10.0.9.0/24', 'next_hop': 'a2'},
+        {'destination': '10.0.10.0/24', 'next_hop': 'a2'},
+    ]
 }
 
-def proximo_salto(roteador, destino_ip):
-    """
-    Dado um roteador e o IP de destino, retorna o próximo salto segundo a tabela estática.
-    """
-    if roteador not in tabelas_roteamento:
-        return None
+# --- O RESTANTE DO ARQUIVO PERMANECE IGUAL ---
 
-    for prefixo, saida in tabelas_roteamento[roteador].items():
-        if destino_ip.startswith(prefixo):
-            return saida
+def ip_in_subnet(ip_addr, subnet):
+    """Verifica se uma string de IP pertence a uma string de sub-rede CIDR."""
+    try:
+        return ipaddress.ip_address(ip_addr) in ipaddress.ip_network(subnet)
+    except (ValueError, TypeError):
+        return False
+
+def proximo_salto(grafo, no_atual, ip_destino):
+    """
+    Determina o próximo salto para um pacote com base na lógica de roteamento correta.
+    """
+    node_data = grafo.nodes[no_atual]
+    
+    if node_data['tipo'] == 'switch':
+        for vizinho in grafo.successors(no_atual):
+            vizinho_data = grafo.nodes[vizinho]
+            if vizinho_data.get('tipo') == 'host' and vizinho_data.get('ip') == ip_destino:
+                return vizinho
+        
+        tabela = ROUTING_TABLES.get(no_atual, [])
+        if tabela:
+            return tabela[0]['next_hop']
+
+    elif node_data['tipo'] == 'roteador':
+        tabela = ROUTING_TABLES.get(no_atual, [])
+        for rota in tabela:
+            subnet = rota['destination']
+            if ip_in_subnet(ip_destino, subnet):
+                return rota['next_hop']
 
     return None

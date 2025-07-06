@@ -1,72 +1,66 @@
+# network/topology.py
 import networkx as nx
 
 def construir_topologia():
+    """
+    Constrói a topologia da rede para refletir EXATAMENTE o diagrama.
+    - Adiciona os 10 hosts.
+    - Corrige as conexões dos hosts aos switches de borda.
+    - Mantém a nomenclatura 'Core' para consistência.
+    """
     G = nx.DiGraph()
 
     # =========================
     # ADIÇÃO DOS NÓS
     # =========================
 
-    # Hosts
-    for i in range(1, 9):
-        G.add_node(f"h{i}", tipo="host", ip=f"10.0.{i}.1")
+    # Hosts (Corrigido para criar 10 hosts)
+    for i in range(1, 11):
+        G.add_node(f"h{i}", tipo="host", ip=f"10.0.{i}.1") # Esquema de IP mantido por simplicidade
 
-    # Switches de borda (edge switches)
+    # Switches de borda (e1 a e4)
     for i in range(1, 5):
         G.add_node(f"e{i}", tipo="switch", ip=f"10.0.{i}.254")
 
-    # Switches de agregação
+    # Roteadores de agregação (a1, a2)
     G.add_node("a1", tipo="roteador", ip="10.0.100.1")
     G.add_node("a2", tipo="roteador", ip="10.0.100.2")
 
-    # Switch central
-    G.add_node("a0", tipo="roteador", ip="10.0.200.1")
+    # Roteador central (Core)
+    G.add_node("Core", tipo="roteador", ip="10.0.200.1")
 
     # =========================
-    # CONEXÕES DOS HOSTS AOS SWITCHES DE BORDA
+    # CONEXÕES (Corrigidas para corresponder ao diagrama)
     # =========================
 
-    G.add_edge("h1", "e1", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("h2", "e1", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("e1", "h1", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
-    G.add_edge("e1", "h2", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
+    # Conexões Hosts -> Switches de Borda
+    # Sub-rede e1
+    G.add_edge("h1", "e1", latencia=20); G.add_edge("e1", "h1", latencia=20)
+    G.add_edge("h2", "e1", latencia=20); G.add_edge("e1", "h2", latencia=20)
+    G.add_edge("h3", "e1", latencia=20); G.add_edge("e1", "h3", latencia=20)
 
-    G.add_edge("h3", "e2", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("h4", "e2", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("e2", "h3", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
-    G.add_edge("e2", "h4", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
+    # Sub-rede e2
+    G.add_edge("h4", "e2", latencia=20); G.add_edge("e2", "h4", latencia=20)
+    G.add_edge("h5", "e2", latencia=20); G.add_edge("e2", "h5", latencia=20)
+    G.add_edge("h6", "e2", latencia=20); G.add_edge("e2", "h6", latencia=20)
 
-    G.add_edge("h5", "e3", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("h6", "e3", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("e3", "h5", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
-    G.add_edge("e3", "h6", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
+    # Sub-rede e3
+    G.add_edge("h7", "e3", latencia=20); G.add_edge("e3", "h7", latencia=20)
+    G.add_edge("h8", "e3", latencia=20); G.add_edge("e3", "h8", latencia=20)
 
-    G.add_edge("h7", "e4", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("h8", "e4", tipo_enlace="par trançado", capacidade="1Gbps")
-    G.add_edge("e4", "h7", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
-    G.add_edge("e4", "h8", tipo_enlace="par trançado", capacidade="1Gbps")  # Enlace de volta
+    # Sub-rede e4
+    G.add_edge("h9", "e4", latencia=20); G.add_edge("e4", "h9", latencia=20)
+    G.add_edge("h10", "e4", latencia=20); G.add_edge("e4", "h10", latencia=20)
 
-    # =========================
-    # CONEXÕES ENTRE SWITCHES DE BORDA E ROTEADORES DE AGREGAÇÃO
-    # =========================
 
-    G.add_edge("e1", "a1", tipo_enlace="fibra óptica", capacidade="10Gbps")
-    G.add_edge("e2", "a1", tipo_enlace="fibra óptica", capacidade="10Gbps")
-    G.add_edge("a1", "e1", tipo_enlace="fibra óptica", capacidade="10Gbps")  # Enlace de volta
-    G.add_edge("a1", "e2", tipo_enlace="fibra óptica", capacidade="10Gbps")  # Enlace de volta
+    # Conexões Switches de Borda -> Roteadores de Agregação
+    G.add_edge("e1", "a1", latencia=10); G.add_edge("a1", "e1", latencia=10)
+    G.add_edge("e2", "a1", latencia=10); G.add_edge("a1", "e2", latencia=10)
+    G.add_edge("e3", "a2", latencia=10); G.add_edge("a2", "e3", latencia=10)
+    G.add_edge("e4", "a2", latencia=10); G.add_edge("a2", "e4", latencia=10)
 
-    G.add_edge("e3", "a2", tipo_enlace="fibra óptica", capacidade="10Gbps")
-    G.add_edge("e4", "a2", tipo_enlace="fibra óptica", capacidade="10Gbps")
-    G.add_edge("a2", "e3", tipo_enlace="fibra óptica", capacidade="10Gbps")  # Enlace de volta
-    G.add_edge("a2", "e4", tipo_enlace="fibra óptica", capacidade="10Gbps")  # Enlace de volta
-
-    # =========================
-    # CONEXÕES ENTRE ROTEADORES DE AGREGAÇÃO E ROTEADOR CENTRAL
-    # =========================
-
-    G.add_edge("a1", "a0", tipo_enlace="fibra óptica", capacidade="40Gbps")
-    G.add_edge("a2", "a0", tipo_enlace="fibra óptica", capacidade="40Gbps")
-    G.add_edge("a0", "a1", tipo_enlace="fibra óptica", capacidade="40Gbps")  # Enlace de volta
-    G.add_edge("a0", "a2", tipo_enlace="fibra óptica", capacidade="40Gbps")  # Enlace de volta
+    # Conexões Roteadores de Agregação -> Core
+    G.add_edge("a1", "Core", latencia=5); G.add_edge("Core", "a1", latencia=5)
+    G.add_edge("a2", "Core", latencia=5); G.add_edge("Core", "a2", latencia=5)
 
     return G
