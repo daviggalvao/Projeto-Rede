@@ -6,15 +6,13 @@ from network.simulator import xping, xtraceroute, listar_hosts
 def interface_interativa(grafo):
     """Interface interativa para o simulador de rede."""
     print("\n===== SIMULADOR DE REDE =====")
-    print("Digite 'sair' a qualquer momento para encerrar o programa.")
-    
     hosts_disponiveis = listar_hosts(grafo)
+    print("\nHosts disponíveis:", ", ".join(hosts_disponiveis))
     
     while True:
-        print("\nHosts disponíveis:", ", ".join(hosts_disponiveis))
         print("\nOpções:")
-        print("1. Executar ping (xping)")
-        print("2. Executar traceroute (xtraceroute)")
+        print("1. Executar xping")
+        print("2. Executar xtraceroute")
         print("3. Sair")
         
         escolha = input("\nEscolha uma opção (1-3): ")
