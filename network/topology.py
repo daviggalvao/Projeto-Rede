@@ -1,22 +1,16 @@
-# network/topology.py
 import networkx as nx
 
 def construir_topologia():
-    """
-    Constrói a topologia da rede para refletir EXATAMENTE o diagrama.
-    - Adiciona os 10 hosts.
-    - Corrige as conexões dos hosts aos switches de borda.
-    - Mantém a nomenclatura 'Core' para consistência.
-    """
+    #Constrói a topologia da rede para refletir o diagrama.
     G = nx.DiGraph()
 
-    # =========================
+    # ==============
     # ADIÇÃO DOS NÓS
-    # =========================
+    # ==============
 
-    # Hosts (Corrigido para criar 10 hosts)
+    # Hosts
     for i in range(1, 11):
-        G.add_node(f"h{i}", tipo="host", ip=f"10.0.{i}.1") # Esquema de IP mantido por simplicidade
+        G.add_node(f"h{i}", tipo="host", ip=f"10.0.{i}.1")
 
     # Switches de borda (e1 a e4)
     for i in range(1, 5):
@@ -29,9 +23,9 @@ def construir_topologia():
     # Roteador central (Core)
     G.add_node("Core", tipo="roteador", ip="10.0.200.1")
 
-    # =========================
-    # CONEXÕES (Corrigidas para corresponder ao diagrama)
-    # =========================
+    # ========
+    # CONEXÕES
+    # ========
 
     # Conexões Hosts -> Switches de Borda
     # Sub-rede e1

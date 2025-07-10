@@ -4,7 +4,6 @@ from network.topology import construir_topologia
 from network.simulator import xping, xtraceroute, listar_hosts
 
 def interface_interativa(grafo):
-    """Interface interativa para o simulador de rede."""
     print("\n===== SIMULADOR DE REDE =====")
     hosts_disponiveis = listar_hosts(grafo)
     print("\nHosts disponíveis:", ", ".join(hosts_disponiveis))

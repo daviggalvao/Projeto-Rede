@@ -1,9 +1,8 @@
-# network/routing.py
 import ipaddress
 
-# ==============================================================================
-# TABELAS DE ROTEAMENTO FINAIS E DEFINITIVAS
-# ==============================================================================
+# =====================
+# TABELAS DE ROTEAMENTO
+# =====================
 ROUTING_TABLES = {
     # Switches de borda têm apenas uma rota padrão "para cima".
     'e1': [{'destination': '0.0.0.0/0', 'next_hop': 'a1'}],
@@ -52,19 +51,15 @@ ROUTING_TABLES = {
     ]
 }
 
-# --- O RESTANTE DO ARQUIVO PERMANECE IGUAL ---
-
 def ip_in_subnet(ip_addr, subnet):
-    """Verifica se uma string de IP pertence a uma string de sub-rede CIDR."""
+    #Verifica se uma string de IP pertence a uma string de sub-rede CIDR.
     try:
         return ipaddress.ip_address(ip_addr) in ipaddress.ip_network(subnet)
     except (ValueError, TypeError):
         return False
 
 def proximo_salto(grafo, no_atual, ip_destino):
-    """
-    Determina o próximo salto para um pacote com base na lógica de roteamento correta.
-    """
+    #Determina o próximo salto para um pacote com base na lógica de roteamento correta.
     node_data = grafo.nodes[no_atual]
     
     if node_data['tipo'] == 'switch':

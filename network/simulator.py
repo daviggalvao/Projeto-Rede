@@ -1,20 +1,15 @@
-# network/simulator.py
 from network.routing import proximo_salto
 
 def listar_hosts(grafo):
-    """Retorna uma lista dos hosts disponíveis na rede, ordenada numericamente."""
     hosts = [no for no, attr in grafo.nodes(data=True) if attr.get('tipo') == 'host']
     return sorted(hosts, key=lambda host_name: int(host_name[1:]))
 
 def buscar_ip(grafo, no):
-    """Retorna o IP do nó na rede."""
+    #Retorna o IP do nó na rede.
     return grafo.nodes[no].get("ip") if no in grafo.nodes else None
 
 def encontrar_caminho(grafo, origem, destino):
-    """
-    Simula o roteamento para encontrar o caminho do pacote.
-    Retorna uma tupla: (caminho, mensagem_de_erro)
-    """
+    #Simula o roteamento para encontrar o caminho do pacote.
     if origem not in grafo:
         return None, f"Host de origem '{origem}' não existe na rede!"
     if destino not in grafo:
@@ -28,7 +23,7 @@ def encontrar_caminho(grafo, origem, destino):
     visitados = {origem}
     
     while atual != destino:
-        # O primeiro salto de um host é sempre para seu gateway (o único vizinho "para cima")
+        # O primeiro salto de um host é sempre para seu gateway
         if grafo.nodes[atual]['tipo'] == 'host' and atual == origem:
             # Encontra o único vizinho que não é um host (ou seja, o switch)
             proximo_no = next((v for v in grafo.successors(atual) if grafo.nodes[v]['tipo'] != 'host'), None)
@@ -50,7 +45,7 @@ def encontrar_caminho(grafo, origem, destino):
     return caminho, None
 
 def xping(grafo, origem, destino):
-    """Executa a simulação de ping e exibe as estatísticas, incluindo latência."""
+    #Executa a simulação de ping e exibe as estatísticas, incluindo latência.
     print(f"\n[XPING] De {origem} para {destino}")
     
     caminho, erro = encontrar_caminho(grafo, origem, destino)
@@ -75,7 +70,7 @@ def xping(grafo, origem, destino):
         print(f"Latência (RTT) simulada: {rtt_simulado}ms")
 
 def xtraceroute(grafo, origem, destino):
-    """Executa a simulação de traceroute."""
+    #Executa a simulação de traceroute.
     print(f"\n[XTRACEROUTE] Rastreando rota de {origem} até {destino}")
 
     caminho, erro = encontrar_caminho(grafo, origem, destino)
