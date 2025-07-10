@@ -1,6 +1,6 @@
 # Simulador de Rede Hierárquica
 
-Este repositório contém o código-fonte para o **Projeto 2** da disciplina de Redes de Computadores, do Departamento de Ciência da Computação da Universidade de Brasília (UnB).
+Este repositório contém o código-fonte para o projeto da disciplina de Redes de Computadores, do Departamento de Ciência da Computação da Universidade de Brasília (UnB).
 
 ## 🎯 Objetivo do Projeto
 
