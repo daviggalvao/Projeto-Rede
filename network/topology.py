@@ -1,7 +1,6 @@
 import networkx as nx
 
 def construir_topologia():
-    #Constrói a topologia da rede para refletir o diagrama.
     G = nx.DiGraph()
 
     # ==============
@@ -9,19 +8,39 @@ def construir_topologia():
     # ==============
 
     # Hosts
-    for i in range(1, 11):
-        G.add_node(f"h{i}", tipo="host", ip=f"10.0.{i}.1")
+    host_ips = {
+        'h1': '192.168.0.2',
+        'h2': '192.168.0.3',
+        'h3': '192.168.0.4',  
+        'h4': '192.168.0.34', 
+        'h5': '192.168.0.35',
+        'h6': '192.168.0.36', 
+        'h7': '192.168.0.66',
+        'h8': '192.168.0.67',
+        'h9': '192.168.0.98',
+        'h10': '192.168.0.99'
+    }
+    for host, ip in host_ips.items():
+        G.add_node(host, tipo="host", ip=ip)
 
     # Switches de borda (e1 a e4)
-    for i in range(1, 5):
-        G.add_node(f"e{i}", tipo="switch", ip=f"10.0.{i}.254")
+    # O IP do gateway da sub-rede foi usado como IP de gerenciamento para o switch.
+    switch_ips = {
+        'e1': '192.168.0.1',
+        'e2': '192.168.0.33',
+        'e3': '192.168.0.65',
+        'e4': '192.168.0.97'
+    }
+    for switch, ip in switch_ips.items():
+        G.add_node(switch, tipo="switch", ip=ip)
+
 
     # Roteadores de agregação (a1, a2)
-    G.add_node("a1", tipo="roteador", ip="10.0.100.1")
-    G.add_node("a2", tipo="roteador", ip="10.0.100.2")
+    G.add_node("a1", tipo="roteador", ip="192.168.0.130")
+    G.add_node("a2", tipo="roteador", ip="192.168.0.134")
 
     # Roteador central (Core)
-    G.add_node("Core", tipo="roteador", ip="10.0.200.1")
+    G.add_node("Core", tipo="roteador", ip="192.168.0.129")
 
     # ========
     # CONEXÕES
@@ -45,7 +64,6 @@ def construir_topologia():
     # Sub-rede e4
     G.add_edge("h9", "e4", latencia=20); G.add_edge("e4", "h9", latencia=20)
     G.add_edge("h10", "e4", latencia=20); G.add_edge("e4", "h10", latencia=20)
-
 
     # Conexões Switches de Borda -> Roteadores de Agregação
     G.add_edge("e1", "a1", latencia=10); G.add_edge("a1", "e1", latencia=10)
