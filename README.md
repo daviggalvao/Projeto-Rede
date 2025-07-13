@@ -40,19 +40,40 @@ O simulador foi desenvolvido em Python e permite a execução dos seguintes coma
     cd Projeto-Rede
     ```
 
-2.  **Instale as Dependências:**
-    * O projeto requer a biblioteca `NetworkX`. Instale-a via `pip`:
+2.  **Crie e Ative o Ambiente Virtual (venv):**
+    * É uma boa prática usar um ambiente virtual para isolar as dependências do projeto.
+    * **Crie o ambiente:**
+        ```bash
+        python3 -m venv venv
+        ```
+    * **Ative o ambiente:**
+        * No Linux ou macOS:
+          ```bash
+          source venv/bin/activate
+          ```
+        * No Windows (PowerShell):
+          ```powershell
+          .\venv\Scripts\Activate.ps1
+          ```
+        * No Windows (CMD):
+          ```cmd
+          venv\Scripts\activate.bat
+          ```
+    * Após ativar, você verá `(venv)` no início do seu prompt do terminal.
+
+3.  **Instale as Dependências:**
+    * Com o ambiente virtual ativo, instale a biblioteca `NetworkX`:
         ```bash
         pip install networkx
         ```
 
-3.  **Execute o Simulador:**
-    * Com as dependências instaladas, execute o script principal para iniciar o programa:
+4.  **Execute o Simulador:**
+    * Execute o script principal para iniciar o programa:
         ```bash
         python3 main.py
         ```
 
-4.  **Utilize o Simulador:**
+5.  **Utilize o Simulador:**
     * Ao ser executado, o programa apresentará um menu interativo.
     * Você deve primeiro escolher a operação desejada (1 para `xping`, 2 para `xtraceroute`) e, em seguida, fornecer os hosts de origem e destino quando solicitado.
     
